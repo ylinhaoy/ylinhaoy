@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jk.xinx.mapper.car.CarMapper">
+
+   <insert id="saverRolePower" parameterType="com.jk.xinx.pojo.car.RolePower">
+      insert into t_role_power(roleid,powerid) values
+      <foreach collection="list" index="index" item="item" separator=",">
+         (#{item.roleid},#{item.powerid})
+      </foreach>
+   </insert>
+   
+   <select id="queryByPage" parameterType="map" resultType="com.jk.xinx.pojo.car.CarList">
+
+		SELECT GROUP_CONCAT(tro.name) as rolename,c.cid,c.username,c.cnumber,c.password,c.price,c.people,tap.name as provincename,tac.name as cityname,ct.colorname as colorname,cp.typename as typename,c.ctime,c.status,c.cimg
+     FROM car c left join colortable ct on c.color = ct.color 
+     left join cartype cp on c.typeid = cp.typeid
+     left join t_area tap on c.provincecode = tap.id
+     left join t_area tac on c.citycode = tac.id
+     left join t_user_role tur on c.cid = tur.userid
+     left join t_role tro on tur.roleid = tro.id
+			<where>
+			 <if test="Car.username!=null and Car.username!=''">
+			      and c.username like '%${Car.username}%'
+			 </if>
+			 <if test="Car.startime!=null and Car.startime!=''">
+			      and c.ctime > #{Car.startime}
+			 </if>
+			 <if test="Car.endtime !=null and Car.endtime !=''">
+			      and #{Car.endtime} > c.ctime
+			 </if>
+			 <if test="Car.typeid!=null and Car.typeid !=-1">
+			      and c.typeid = #{Car.typeid}
+			 </if>
+			</where>
+        group by c.cid limit #{start,jdbcType=NUMERIC},#{count,jdbcType=NUMERIC}
+      
+   </select>
+   <delete id="deleteManyId" parameterType="int">
+       delete from car where cid in
+       <foreach collection="array" item="ids" open="(" close=")" separator=",">
+       	#{ids}
+       </foreach>
+   </delete>
+   
+   <delete id="deleteRoleId" parameterType="int">
+       delete from t_role where id in
+       <foreach collection="array" item="ids" open="(" close=")" separator=",">
+       	#{ids}
+       </foreach>
+   </delete>
+   
+   <select id="findCarListPageCount" parameterType="map" resultType="int">
+        select count(1) from car c 
+                           left join colortable ct on c.color = ct.color
+                           left join cartype cp on c.typeid = cp.typeid
+   </select>
+   
+   
+   <insert id="saveCar" parameterType="com.jk.xinx.pojo.car.Car">
+		<selectKey keyProperty="cid" order="AFTER" resultType="int">
+			  select LAST_INSERT_ID()
+		</selectKey>
+		insert into car(username,people,price,typeid,color,ctime,cimg,status,cnumber,password,provincecode,citycode)
+               values(#{username},#{people},#{price},#{typeid},#{color},#{ctime},#{cimg},#{status},#{cnumber},#{password},#{provincecode},#{citycode})
+	</insert>
+	<insert id="saveUserRole" parameterType="com.jk.xinx.pojo.car.UserRoleBean">
+		insert into t_user_role(userid,roleid) values
+		<foreach collection="list" index="index" item="item" separator=",">
+			(#{item.userid},#{item.roleid})
+		</foreach>
+	</insert>
+
+    <select parameterType="int" id="findPowerTreeChildren" resultType="com.jk.xinx.pojo.tree.TreeBean">
+          select id,pid from tree where pid = #{value} 
+    </select>
+    
+    <delete parameterType="list" id="delPowerTree">
+          delete from tree where id in( 
+         <foreach separator="," index="index" item="item" collection="list">#{item}</foreach>
+          ) 
+    </delete>
+    
+    <delete id="deleteMenuId" parameterType="int">
+       delete from t_power_menu where id in 
+       <foreach collection="array" item="ids" open="(" close=")" separator=",">
+        #{ids}
+       </foreach>
+    </delete>
+    
+
+	
+	<select id="getUserInfoByLoginNumber" parameterType="Car" resultType="Car">
+		select tu.cid,tu.username,tu.login_number as loginNumber,tu.password,
+			tu.ctime,tu.cimg as headImg,
+			tu.status
+			from car tu
+		where tu.login_number = #{loginNumber}
+	</select>
+ 
+</mapper>

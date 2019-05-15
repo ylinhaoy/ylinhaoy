@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jk.xinx.mapper.user.UserMapper">
+    <select id="selectByAccount" parameterType="string" resultType="userBean">
+        select cid,username,password from car  where username = #{value}
+    </select>
+
+    <select id="findRoleSet" parameterType="int" resultType="string">
+         select tr.name from car uleft join t_user_role tur on u.cid = tur.useridleft join t_role tr on tur.roleid = tr.idwhere u.cid = #{value}
+    </select>
+</mapper>

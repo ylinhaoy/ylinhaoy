@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="/js/jquery-1.8.0.js"></script>
+    <script type="text/javascript" src="/js/easyui1.5/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/js/easyui1.5/locale/easyui-lang-zh_CN.js"></script>
+    <link rel="stylesheet" href="/js/easyui1.5/themes/default/easyui.css" type="text/css"></link>
+    <link rel="stylesheet" href="/js/easyui1.5/themes/icon.css" type="text/css"></link>
+    <link rel="stylesheet" href="/js/uploadify/uploadify.css" type="text/css"></link>
+    <script type="text/javascript" src="/js/util-js.js"></script>
+    <script type="text/javascript" src="/js/uploadify/jquery.uploadify.js"></script>
+</head>
+<body>
+<div class="easyui-layout" data-options="fit:true">
+
+    <div data-options="region:'west',title:'角色列表'" style="width:30%">
+        <a class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true" id="deleteMany"> 批量删除</a>
+        <a onclick="openCarDialog()" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">新增</a>
+        <table id="roleTable"></table>
+        <div id="CarDialog" class="easyui-dialog" data-options="title:'汽车',modal:true,closed:true,
+      buttons:[{
+            text:'保存',
+            palin:true,
+            iconCls:'icon-save',
+            handler:function(){
+                saveRoleForm();
+            }
+            },{
+            text:'关闭',
+            palin:true,
+            iconCls:'icon-cancel',
+            handler:function(){
+                closeWindow();
+            }
+      }]" style="width:500px;height:600px">
+            <div style="margin: 10px 0px 0px 10px">
+                <form id="RolePowerForm" action="">
+                    <table>
+                        <tr>
+                            <td>角色名称</td>
+                            <td>
+                                <input type="text" class="easyui-textbox" name="name"></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+
+        <div id="CarDialog2" class="easyui-dialog" data-options="title:'汽车',modal:true,closed:true,
+      buttons:[{
+            text:'保存',
+            palin:true,
+            iconCls:'icon-save',
+            handler:function(){
+                saveRoleForm2();
+            }
+            },{
+            text:'关闭',
+            palin:true,
+            iconCls:'icon-cancel',
+            handler:function(){
+                closeWindow();
+            }
+      }]" style="width:400px;height:250px">
+            <div style="margin: 10px 0px 0px 10px">
+                <form id="RolePowerForm2" action="">
+                    <table>
+                        <tr>
+                            <td>角色名称</td>
+                            <td>
+                                <input type="hidden" name="id">
+                                <input type="text" class="easyui-textbox" name="name"></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+
+        <div id="CarDialog3" class="easyui-dialog" data-options="title:'tree',modal:true,closed:true,
+      buttons:[{
+            text:'保存',
+            palin:true,
+            iconCls:'icon-save',
+            handler:function(){
+                saveRoleForm3();
+            }
+            },{
+            text:'关闭',
+            palin:true,
+            iconCls:'icon-cancel',
+            handler:function(){
+                closeWindow();
+            }
+      }]" style="width:500px;height:600px">
+            <div style="margin: 10px 0px 0px 10px">
+                <form id="RolePowerForm3" action="">
+                    <table>
+                        <input type="hidden" name="pid" id="pid"/>
+                        <tr>
+                            <td>TreeName</td>
+                            <td>
+                                <input type="text" class="easyui-textbox" name="text"></td>
+                        </tr>
+                        <tr>
+                            <td>TreeUrl</td>
+                            <td><input type="text" class="easyui-textbox" name="url"></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+
+        <div id="CarDialog4" class="easyui-dialog" data-options="title:'tree',modal:true,closed:true,
+      buttons:[{
+            text:'保存',
+            palin:true,
+            iconCls:'icon-save',
+            handler:function(){
+                saveRoleForm4();
+            }
+            },{
+            text:'关闭',
+            palin:true,
+            iconCls:'icon-cancel',
+            handler:function(){
+                closeWindow();
+            }
+      }]" style="width:400px;height:250px">
+            <div style="margin: 10px 0px 0px 10px">
+                <form id="RolePowerForm4" action="">
+                    <table>
+                        <input type="hidden" name="pid" id="pid"/>
+                        <input type="hidden" name="id">
+                        <tr>
+                            <td>TreeName</td>
+                            <td>
+                                <input type="text" class="easyui-textbox" name="text"></td>
+                        </tr>
+                        <tr>
+                            <td>TreeUrl</td>
+                            <td><input type="text" class="easyui-textbox" name="url"></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+
+    </div>
+    <div data-options="region:'center',title:'权限树',footer:'#footer'" style="width:30%">
+        <input type="text" id="hideRoleid">
+        <ul id="powerTree"></ul>
+        <!-- 右击菜单 -->
+        <div id="rightMenu" class="easyui-menu" style="width:120px;">
+            <div onclick="append()" data-options="iconCls:'icon-add'">追加</div>
+            <div onclick="edit()" data-options="iconCls:'icon-edit'">编辑</div>
+            <div onclick="remove()" data-options="iconCls:'icon-remove'">移除</div>
+        </div>
+    </div>
+    <div data-options="region:'east',title:'详细菜单'" style="width:40%">
+        <div id="detailMenuToolBar">
+            <a class="easyui-linkbutton" onclick="openPowerMenuDialog()"  data-options="iconCls:'icon-add',plain:true">添加</a>
+            <a class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true" id="deleteMany2">批量删除</a>
+        </div>
+        <table id="powerlMenu"></table>
+
+        <div id="CarDialog5" class="easyui-dialog" data-options="title:'汽车',modal:true,closed:true,
+      buttons:[{
+            text:'保存',
+            palin:true,
+            iconCls:'icon-save',
+            handler:function(){
+
+            }
+            },{
+            text:'关闭',
+            palin:true,
+            iconCls:'icon-cancel',
+            handler:function(){
+                closeWindow();
+            }
+      }]" style="width:400px;height:500px">
+            <div style="margin: 10px 0px 0px 10px">
+                <form id="RolePowerForm5" action="">
+                    <input type="hidden" name="id">
+                    <input type="hidden" name="powerid">
+                    <table>
+                        <tr>
+                            <td>菜单名称 <input type="text" class="easyui-textbox" name="name"></td>
+                        </tr>
+                        <tr>
+                            <td>请求地址<input type="text" class="easyui-textbox" name="path"><td>
+                        </tr>
+                        <tr>
+                            <td>用途<input type="text" class="easyui-textbox" name="useing"></td>
+                        </tr>
+
+                    </table>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>
+<div id="footer">
+    <div style="float:right">
+        <a class="easyui-linkbutton" onclick="saveReloPower()" data-options="iconCls:'icon-save',plain:true">保存</a>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+
+    $(function(){
+        initRoleTable();
+        findRolePower(-1);
+        loadPowerMenu(-1);
+    })
+
+
+
+
+    function saveReloPower(){
+        var roleid = $("#hideRoleid").val();
+        if(roleid==null || roleid=='' || roleid == -1){
+            $.messager.alert('提示','请先点击查看权限','warning');
+            return;
+        }
+
+        var tree = $("#powerTree").tree('getChecked');
+        var ids = "";
+        for (var i = 0; i < tree.length; i++) {
+            ids += ids == ''? tree[i].id : ","+tree[i].id;
+        }
+        $.ajax({
+            url:'../car/saveRolePower',
+            type:'post',
+            data:{
+                roleid:roleid,
+                powerids:ids
+            },
+            dataType:'json',
+            success:function(data){
+                if(data){
+                    $.messager.alert('提示','保存成功','info');
+                }else{
+                    $.messager.alert('提示','保存失败','error');
+                }
+            }
+        })
+
+    }
+
+
+    function findRolePower(roleid){
+        $("#hideRoleid").val(roleid);
+        $("#powerTree").tree({
+            url:'../car/findRolePowerTree?id='+roleid,
+            parentField:'pid',
+            lines:true,
+            checkbox:true,
+            onDblClick:function(node){
+                var powerid = node.id;
+                loadPowerMenu(powerid);
+            },
+            onContextMenu:function(e, node){
+                //阻止浏览器本身右击事件
+                e.preventDefault();
+                // 显示快捷菜单
+                $('#rightMenu').menu('show', {
+                    left: e.pageX,
+                    top: e.pageY
+                });
+
+            },
+
+        })
+    }
+
+    function loadPowerMenu(powerid){
+        $('#powerlMenu').datagrid({
+            url:'../car/findPowerMenuList?powerid='+powerid,
+            fit:true,
+            toolbar:'#detailMenuToolBar',
+            pagination:true,
+            pageNumber:1,
+            pageSize:5,
+            pageList:[3,5,10,20,50],
+            columns:
+
+
+                [
+                [
+                {field:'id',checkbox:true},
+                {field:'name',title:'菜单名称'},
+                {field:'path',title:'请求地址'},
+                {field:'useing',title:'用途'},
+                {field:'123',title:'操作',formatter:function(value,row,index){
+                        return '<a href="javascript:queryMenuById('+row.id+');">修改</a>';
+                    }},
+
+                ]
+                ]
+        })
+    }
+
+
+    function initRoleTable(){
+        $("#roleTable").datagrid({
+            url:'../car/findRoleList',
+            fit:true,
+            columns:
+                [
+                    [
+                {field:'123',checkbox:true},
+                {field:'id',title:'主键id'},
+                {field:'name',title:'角色名称'},
+                {field:'456',title:'操作',formatter:function(value,row,index){
+                        return '<a href="javascript:findRolePower('+row.id+');">查看权限</a>&nbsp;&nbsp;&nbsp;<a href="javascript:updaterole('+row.id+')">修改</a>';
+                    }},
+            ]
+                ]
+        })
+    }
+
+    function openCarDialog(){
+        initRoleTable();
+        $("#RolePowerForm").form('reset');
+        $("#CarDialog").dialog({
+            closed:false,
+            title:'新增角色',
+            close:false,
+            iconCls:'icon-add'
+        })
+    }
+
+    function saveRoleForm(){
+
+        $("#RolePowerForm").form('submit',{
+            url:'../car/saveRole',
+            success:function(data){
+
+                $("#CarDialog").dialog('close');
+                initRoleTable();
+            },
+            error:function(){
+                alert("新增失败");
+                $("#CarDialog").dialog('close');
+                initRoleTable();
+            }
+
+        })
+
+    }
+
+    function saveRoleForm2(){
+
+        $("#RolePowerForm2").form('submit',{
+            url:'../car/saveRole',
+            success:function(data){
+
+                $("#CarDialog2").dialog('close');
+                initRoleTable();
+            },
+            error:function(){
+                alert("修改失败");
+                $("#CarDialog2").dialog('close');
+                initRoleTable();
+            }
+
+        })
+
+    }
+
+
+
+
+
+    $("#deleteMany").click(function(){
+        var cars = $("#roleTable").datagrid('getSelections');
+        var ids = "";
+        for(var i in cars){
+            ids+=ids==""? cars[i].id :","+cars[i].id;
+        }
+        $.ajax({
+            url:'../car/deleteRoleId',
+            type:'post',
+            data:{
+                ids:ids
+            },
+            dataType:'json',
+            success:function(data){
+                if(data){
+                    initRoleTable();
+                }else{
+                    $.messager.alert('提示','删除失败','error');
+                }
+            }
+        })
+    })
+
+
+    function updaterole(id){
+
+        loadRoleForm(id);
+        $("#CarDialog2").dialog({
+            closed:false,
+            title:'修改角色',
+            close:false,
+            iconCls:'icon-edit'
+        })
+    }
+
+
+    function loadRoleForm(id){
+        $.ajax({
+            url:'./car/findRoleById',
+            type:'post',
+            data:{
+                id:id
+            },
+            dataType:'json',
+            success:function(data){
+                $("#RolePowerForm2").form('load',data);
+            },
+            error:function(){
+                alert("修改失败");
+            }
+        })
+    }
+
+
+    function queryMenuById(id){
+        loadMenuForm(id);
+        $("#CarDialog5").dialog({
+            closed:false,
+            title:'修改详细菜单',
+            close:false,
+            iconCls:'icon-edit'
+        })
+    }
+
+    function loadMenuForm(id){
+        $.ajax({
+            url:'../car/queryMenuById',
+            type:'post',
+            data:{
+                id:id
+            },
+            dataType:'json',
+            success:function(data){
+                $("#RolePowerForm5").form('load',data);
+            },
+            error:function(){
+                $.messager.alert('提示','修改失败','error');
+            }
+        })
+    }
+
+
+
+    function saveRoleForm5(){
+
+        $("#RolePowerForm5").form('submit',{
+            url:'../car/saveMenu',
+            success:function(data){
+
+                $("#CarDialog5").dialog('close');
+                loadPowerMenu(-1);
+            },
+            error:function(){
+                $.messager.alert('提示','修改失败','error');
+                $("#CarDialog5").dialog('close');
+                loadPowerMenu(-1);
+            }
+
+        })
+
+    }
+
+
+    //权限树删除
+    function remove(){
+        var node = $("#powerTree").tree('getSelected');
+        $.post('../car/delPowerTree',{id:node.id},function(data){
+            findRolePower(-1);
+        })
+    }
+    //追加
+    function append(){
+
+        var node = $("#powerTree").tree('getSelected');
+        $('#pid').val(node.id);
+        $("#CarDialog3").dialog({
+            closed:false,
+            title:'保存Tree',
+            close:false,
+            iconCls:'icon-edit'
+        })
+
+    }
+
+    function saveRoleForm3(){
+        $("#RolePowerForm3").form('submit',{
+            url:'../car/saveTree',
+            success:function(data){
+
+                $("#CarDialog3").dialog('close');
+                findRolePower(-1);
+                initRoleTable();
+            },
+            error:function(){
+                alert("追加失败");
+                $("#CarDialog3").dialog('close');
+                initRoleTable();
+            }
+
+        })
+
+    }
+
+
+
+    //编辑
+    function edit(){
+        var node = $("#powerTree").tree('getSelected');
+        loadRoleForm4(node.id);
+        $("#CarDialog4").dialog({
+            closed:false,
+            title:'修改tree',
+            close:false,
+            iconCls:'icon-edit'
+        })
+    }
+
+    function loadRoleForm4(node){
+        $.ajax({
+            url:'../car/findTreeById',
+            type:'post',
+            data:{
+                id:node
+            },
+            dataType:'json',
+            success:function(data){
+                $("#RolePowerForm4").form('load',data);
+            },
+            error:function(){
+                alert("修改失败");
+            }
+        })
+    }
+
+    function saveRoleForm4(){
+        $("#RolePowerForm4").form('submit',{
+            url:'car/updateTree.do',
+            success:function(data){
+
+                $("#CarDialog4").dialog('close');
+                findRolePower(-1);
+                initRoleTable();
+            },
+            error:function(){
+                alert("修改失败");
+                $("#CarDialog4").dialog('close');
+                initRoleTable();
+            }
+
+        })
+
+    }
+
+
+    $("#deleteMany2").click(function(){
+        var cars = $("#powerlMenu").datagrid('getSelections');
+        var ids = "";
+        for(var i in cars){
+            ids+=ids==""? cars[i].id :","+cars[i].id;
+        }
+        $.ajax({
+            url:'../car/deleteMenuId',
+            type:'post',
+            data:{
+                ids:ids
+            },
+            dataType:'json',
+            success:function(data){
+                if(data){
+                    $.messager.alert('提示','删除成功','info');
+                    loadPowerMenu(-1);
+                }else{
+                    $.messager.alert('提示','删除失败','error');
+                }
+            }
+        })
+    })
+
+
+    function openPowerMenuDialog(){
+        $("#CarDialog5").dialog({
+            closed:false,
+            title:'新增详细菜单',
+            close:false,
+            iconCls:'icon-edit'
+        })
+
+    }
+
+</script>
+</html>
